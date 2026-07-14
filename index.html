@@ -30,7 +30,7 @@
         .birthday-banner { background-color: #ff7675; color: white; border-radius: 15px; padding: 15px; animation: pop 0.5s ease-out; }
         .ai-box { background-color: white; border-left: 5px solid var(--mint-primary); padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.03);}
         
-        /* สไตล์ตารางโค้งมนแบบ Tailwind / Bootstrap */
+        /* สไตล์ตารางและปุ่มจัดการ */
         .table-rounded-wrapper { border-radius: 1rem; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: 1px solid #e2e8f0; background: white; }
         .table { margin-bottom: 0; }
         .table thead { background-color: #f8fafc; color: #475569; font-size: 0.95rem; }
@@ -39,8 +39,12 @@
         .table tbody tr:hover { background-color: var(--mint-light); }
         
         .chart-container { position: relative; height: 250px; width: 100%; margin-bottom: 20px; }
+        
+        /* สไตล์ปุ่มแก้ไขและปุ่มลบ */
         .btn-edit { background-color: #f1f5f9; color: #64748b; border: none; border-radius: 8px; padding: 5px 10px; font-size: 0.9rem; transition: all 0.2s; }
         .btn-edit:hover { background-color: var(--mint-primary); color: white; }
+        .btn-delete { background-color: #fee2e2; color: #ef4444; border: none; border-radius: 8px; padding: 5px 10px; font-size: 0.9rem; transition: all 0.2s; margin-left: 4px; }
+        .btn-delete:hover { background-color: #ef4444; color: white; }
         
         @keyframes pop { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
     </style>
@@ -152,7 +156,7 @@
                     </div>
                 </div>
 
-                <!-- ตารางข้อมูลโค้งมน สไตล์ Tailwind -->
+                <!-- ตารางข้อมูลโค้งมน -->
                 <div class="table-rounded-wrapper mb-4">
                     <div class="table-responsive">
                         <table class="table text-center align-middle">
@@ -317,7 +321,7 @@
                 submitBtn.disabled = true;
 
                 const payload = {
-                    id: Date.now(), // สร้าง ID ไม่ซ้ำสำหรับใช้อ้างอิงตอนแก้ไข
+                    id: Date.now(), 
                     date: document.getElementById('date').value,
                     time: document.getElementById('time').value,
                     rr: document.getElementById('rr').value,
@@ -352,7 +356,7 @@
         });
     });
 
-    // --- ฟังก์ชันแก้ไขข้อมูล (อัปเดตในระบบแอปพลิเคชัน) ---
+    // --- ฟังก์ชันแก้ไขข้อมูล ---
     function editRecord(id) {
         let history = JSON.parse(localStorage.getItem('healthHistory')) || [];
         let index = history.findIndex(item => item.id === id);
@@ -384,14 +388,46 @@
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                // อัปเดตข้อมูลใน Local Storage
                 history[index].sbp = result.value.sbp;
                 history[index].dbp = result.value.dbp;
                 history[index].p = result.value.p;
                 history[index].rr = result.value.rr;
                 localStorage.setItem('healthHistory', JSON.stringify(history));
                 
-                Swal.fire({ title: 'อัปเดตสำเร็จ', text: 'ข้อมูลในกราฟและ AI ถูกปรับปรุงแล้ว', icon: 'success', confirmButtonColor: '#20c997', timer: 1500 });
+                Swal.fire({ title: 'อัปเดตสำเร็จ', text: 'ข้อมูลถูกปรับปรุงแล้ว', icon: 'success', confirmButtonColor: '#20c997', timer: 1500 });
+                renderHistory();
+                renderAIAnalysis();
+            }
+        });
+    }
+
+    // --- ฟังก์ชันลบข้อมูล ---
+    function deleteRecord(id) {
+        Swal.fire({
+            title: 'ยืนยันการลบข้อมูล?',
+            text: "หากลบแล้วจะไม่สามารถกู้คืนข้อมูลนี้ได้!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: '<i class="bi bi-trash"></i> ใช่, ลบเลย',
+            cancelButtonText: 'ยกเลิก'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let history = JSON.parse(localStorage.getItem('healthHistory')) || [];
+                // กรองเอาเฉพาะข้อมูลที่ id ไม่ตรงกับตัวที่ถูกเลือกลบ (คือลบตัวนั้นออก)
+                history = history.filter(item => item.id !== id);
+                localStorage.setItem('healthHistory', JSON.stringify(history));
+                
+                Swal.fire({
+                    title: 'ลบสำเร็จ!',
+                    text: 'ข้อมูลถูกลบออกจากระบบแล้ว',
+                    icon: 'success',
+                    confirmButtonColor: '#20c997',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                
                 renderHistory();
                 renderAIAnalysis();
             }
@@ -429,7 +465,8 @@
                         <td><span class="text-danger fw-bold fs-6">${item.sbp}</span> / <span class="text-primary fw-bold fs-6">${item.dbp}</span></td>
                         <td class="text-warning fw-bold fs-6">${item.p || '-'}</td>
                         <td>
-                            <button class="btn-edit" onclick="editRecord(${item.id})"><i class="bi bi-pencil"></i></button>
+                            <button class="btn-edit" onclick="editRecord(${item.id})" title="แก้ไข"><i class="bi bi-pencil"></i></button>
+                            <button class="btn-delete" onclick="deleteRecord(${item.id})" title="ลบ"><i class="bi bi-trash"></i></button>
                         </td>
                     </tr>
                 `;
@@ -474,7 +511,6 @@
         let bpStatus = "ปกติ (Normal)"; let color = "text-success"; let icon = "bi-check-circle-fill";
         let bpAdvice = "ความดันอยู่ในเกณฑ์ดีมาก รักษาสุขภาพและออกกำลังกายสม่ำเสมอต่อไปนะครับ";
         
-        // กฎการประเมินความดันโลหิต อ้างอิงจาก AHA 2017 Guidelines
         if (sbp >= 180 || dbp >= 120) {
             bpStatus = "วิกฤต (Hypertensive Crisis)"; color = "text-danger"; icon = "bi-exclamation-octagon-fill";
             bpAdvice = `<strong>คำแนะนำฉุกเฉิน:</strong> ระดับความดันอันตรายมาก 🚨 หากมีอาการเจ็บหน้าอก หายใจลำบาก หรือเวียนศีรษะรุนแรง ควรรีบพบแพทย์หรือห้องฉุกเฉินทันที`;
@@ -487,12 +523,11 @@
         } else if (sbp >= 120 && dbp < 80) {
             bpStatus = "เริ่มสูง (Elevated)"; color = "text-info"; icon = "bi-info-circle-fill";
             bpAdvice = `<strong>คำแนะนำ:</strong> ความดันค่อนข้างปริ่มเกณฑ์มาตรฐาน ควรเริ่มปรับพฤติกรรมสุขภาพ ลดโซเดียมและออกกำลังกายสม่ำเสมอ`;
-        } else if (sbp < 90 && sbp > 0) { // ใช้ SBP < 90 เป็นตัวแปรหลักสำหรับ Hypotension
+        } else if (sbp < 90 && sbp > 0) {
             bpStatus = "ต่ำ (Hypotension)"; color = "text-secondary"; icon = "bi-arrow-down-circle-fill";
             bpAdvice = `<strong>คำแนะนำ:</strong> ความดันค่อนข้างต่ำ หากมีอาการหน้ามืด วิงเวียนขณะลุกยืน แนะนำให้จิบน้ำหวาน ดื่มน้ำให้เพียงพอ และเปลี่ยนอิริยาบถช้าๆ`;
         }
 
-        // วิเคราะห์ชีพจร (Pulse)
         let hrText = "";
         if (p > 0) {
             if (p > 100) hrText = `<p class="mb-1"><i class="bi bi-heart-pulse text-warning"></i> <b>ชีพจร:</b> ${p} bpm (ค่อนข้างเร็ว - Tachycardia) ควรนั่งพักสักครู่</p>`;

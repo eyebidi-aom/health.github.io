@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Health Tracking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #f4f7f6; font-family: 'Sarabun', sans-serif; }
+        .card { border-radius: 15px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .greeting-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px; padding: 20px; }
+        .icon-cute { font-size: 1.5rem; color: #667eea; }
+        .nav-pills .nav-link.active { background-color: #667eea; }
+        .max-w-md { max-width: 600px; margin: 0 auto; }
+    </style>
+</head>
+<body>
+
+<div class="container py-4 max-w-md">
+    <!-- กล่องทักทายและสภาพอากาศ -->
+    <div class="greeting-box mb-4 shadow">
+        <h4 id="greetingText"><i class="bi bi-person-heart"></i> สวัสดีคุณมุก!</h4>
+        <p class="mb-1" id="dateText"></p>
+        <div class="d-flex align-items-center mt-2">
+            <i id="weatherIcon" class="bi bi-cloud-sun fs-2 me-3"></i>
+            <div>
+                <strong class="fs-5" id="tempText">กำลังโหลดสภาพอากาศ...</strong>
+                <p class="mb-0 fs-6" id="weatherSuggestion"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- เมนูนำทาง -->
+    <ul class="nav nav-pills nav-justified mb-4" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#pills-record" type="button"><i class="bi bi-clipboard2-pulse"></i> บันทึกข้อมูล</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-settings" type="button"><i class="bi bi-gear"></i> ตั้งค่า</button>
+        </li>
+    </ul>
+
+    <!-- เนื้อหา -->
+    <div class="tab-content" id="pills-tabContent">
+        <!-- หน้าบันทึกข้อมูล -->
+        <div class="tab-pane fade show active" id="pills-record">
+            <div class="card p-4">
+                <form id="healthForm">
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label"><i class="bi bi-calendar-event icon-cute"></i> วันที่</label>
+                            <input type="date" class="form-control" id="date" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label"><i class="bi bi-clock icon-cute"></i> เวลา</label>
+                            <input type="time" class="form-control" id="time" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label">RR (ครั้ง/นาที)</label>
+                            <input type="number" class="form-control" id="rr">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Pulse (ครั้ง/นาที)</label>
+                            <input type="number" class="form-control" id="p">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label">SBP (mmHg)</label>
+                            <input type="number" class="form-control" id="sbp">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">DBP (mmHg)</label>
+                            <input type="number" class="form-control" id="dbp">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label"><i class="bi bi-journal-text icon-cute"></i> หมายเหตุ</label>
+                        <textarea class="form-control" id="note" rows="2" placeholder="ระบุอาการเพิ่มเติม (ถ้ามี)"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2" style="background-color: #667eea; border: none; font-size: 1.1rem;">
+                        <i class="bi bi-cloud-arrow-up"></i> บันทึกข้อมูล
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- หน้าตั้งค่า -->
+        <div class="tab-pane fade" id="pills-settings">
+            <div class="card p-4 text-center">
+                <i class="bi bi-tools fs-1 text-secondary mb-3"></i>
+                <h5>ตั้งค่าระบบ</h5>
+                <p class="text-muted">ส่วนนี้สามารถพัฒนาต่อเพื่อตั้งค่าพิกัดเพิ่มเติม หรือแก้ไขโปรไฟล์ผู้ใช้งานได้ในอนาคต</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 1. ตั้งค่าวันที่และเวลาปัจจุบัน
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('dateText').textContent = 'วันนี้ ' + new Date().toLocaleDateString('th-TH', options);
+    
+    document.getElementById('date').valueAsDate = new Date();
+    document.getElementById('time').value = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+
+    // 2. ดึงข้อมูลสภาพอากาศ (อ้างอิงพิกัดนนทบุรี 13.86, 100.52)
+    async function fetchWeather() {
+        try {
+            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=13.86&longitude=100.52&current_weather=true');
+            const data = await res.json();
+            const temp = data.current_weather.temperature;
+            const code = data.current_weather.weathercode;
+            
+            document.getElementById('tempText').textContent = `อุณหภูมิ ${temp}°C`;
+            
+            let suggestion = "อากาศแจ่มใส เหมาะกับการทำกิจกรรมครับ";
+            let icon = "bi-cloud-sun";
+            
+            if (code >= 51 && code <= 99) {
+                suggestion = "พยากรณ์ว่าฝนอาจจะตก อย่าลืมเตรียมร่มก่อนออกจากบ้านนะครับ ☔";
+                icon = "bi-cloud-rain";
+            } else if (temp > 35) {
+                suggestion = "อากาศค่อนข้างร้อน ดื่มน้ำบ่อยๆ และระวังฮีทสโตรกด้วยนะครับ ☀️";
+                icon = "bi-sun";
+            }
+
+            document.getElementById('weatherIcon').className = `bi ${icon} fs-2 me-3`;
+            document.getElementById('weatherSuggestion').textContent = suggestion;
+        } catch (e) {
+            document.getElementById('tempText').textContent = "ไม่สามารถโหลดสภาพอากาศได้";
+            document.getElementById('weatherSuggestion').textContent = "";
+        }
+    }
+    fetchWeather();
+
+    // 3. จัดการการส่งข้อมูลแบบแก้ปัญหา LINE In-App Browser (ใช้ no-cors)
+    document.getElementById('healthForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = e.target.querySelector('button');
+        const originalBtnText = submitBtn.innerHTML;
+        
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังบันทึก...';
+        submitBtn.disabled = true;
+
+        const payload = {
+            date: document.getElementById('date').value,
+            time: document.getElementById('time').value,
+            rr: document.getElementById('rr').value,
+            p: document.getElementById('p').value,
+            sbp: document.getElementById('sbp').value,
+            dbp: document.getElementById('dbp').value,
+            note: document.getElementById('note').value
+        };
+
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz4ZS_9rWntw7fbl2oENr4osaAswx9JyC9G1PqIb652B392JNePHOEK2ceBTRSdk5g/exec';
+
+        try {
+            // ใช้ mode: 'no-cors' เพื่อไม่ให้ LINE ขัดขวางการส่งข้อมูลข้ามโดเมน
+            await fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8'
+                },
+                body: JSON.stringify(payload)
+            });
+            
+            // เนื่องจาก no-cors จะไม่อ่าน response กลับมา จึงถือว่าการส่งสำเร็จหากไม่ติด Error
+            alert('บันทึกข้อมูลเรียบร้อยแล้ว!');
+            e.target.reset();
+            document.getElementById('date').valueAsDate = new Date();
+            document.getElementById('time').value = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+            
+        } catch (error) {
+            alert('เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง');
+        } finally {
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+        }
+    });
+</script>
+</body>
+</html>

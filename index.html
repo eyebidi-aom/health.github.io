@@ -6,35 +6,88 @@
     <title>Smart Health Tracking</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #f4f7f6; font-family: 'Sarabun', sans-serif; }
-        .card { border-radius: 15px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .greeting-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px; padding: 20px; }
-        .icon-cute { font-size: 1.5rem; color: #667eea; }
-        .nav-pills .nav-link.active { background-color: #667eea; }
+        :root {
+            --mint-dark: #129272;
+            --mint-primary: #20c997;
+            --mint-light: #d1f2eb;
+            --mint-bg: #f2fcf9;
+        }
+        body { 
+            background-color: var(--mint-bg); 
+            font-family: 'Prompt', sans-serif; 
+            font-size: 1.1rem; /* ตัวหนังสือใหญ่ขึ้น */
+            color: #333;
+        }
         .max-w-md { max-width: 600px; margin: 0 auto; }
+        .card { border-radius: 20px; border: none; box-shadow: 0 8px 20px rgba(32, 201, 151, 0.1); }
+        
+        /* กล่องทักทาย ทูโทน */
+        .greeting-box { 
+            background: linear-gradient(135deg, var(--mint-primary) 0%, var(--mint-dark) 100%); 
+            color: white; 
+            border-radius: 20px; 
+            padding: 25px; 
+        }
+        
+        .nav-pills .nav-link { color: var(--mint-dark); font-size: 1.1rem; font-weight: 500; border-radius: 12px; }
+        .nav-pills .nav-link.active { background-color: var(--mint-primary); color: white; }
+        
+        .form-label { font-weight: 500; color: var(--mint-dark); font-size: 1.15rem; }
+        .form-control { border-radius: 12px; border: 2px solid var(--mint-light); padding: 12px; font-size: 1.1rem; }
+        .form-control:focus { border-color: var(--mint-primary); box-shadow: 0 0 0 0.25rem rgba(32, 201, 151, 0.25); }
+        
+        .btn-custom { 
+            background-color: var(--mint-primary); 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 1.25rem; 
+            font-weight: 500;
+            padding: 12px;
+            transition: all 0.3s;
+        }
+        .btn-custom:hover { background-color: var(--mint-dark); color: white; }
+        
+        .birthday-banner { background-color: #ff7675; color: white; border-radius: 15px; padding: 15px; animation: pop 0.5s ease-out; }
+        .ai-box { background-color: var(--mint-light); border-left: 5px solid var(--mint-primary); padding: 15px; border-radius: 10px; }
+        
+        @keyframes pop { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
 
 <div class="container py-4 max-w-md">
+    
+    <!-- แบนเนอร์วันเกิด (จะซ่อนไว้จนกว่าจะถึงวันเกิด) -->
+    <div id="birthdayBanner" class="birthday-banner mb-3 d-none text-center shadow-sm">
+        <h4 class="mb-1">🎉 สุขสันต์วันเกิด! 🎂</h4>
+        <p class="mb-0 fs-5">ขอให้คุณ <span id="bdName"></span> สุขภาพร่างกายแข็งแรง ปราศจากโรคภัยนะครับ</p>
+    </div>
+
     <!-- กล่องทักทายและสภาพอากาศ -->
     <div class="greeting-box mb-4 shadow">
-        <h4 id="greetingText"><i class="bi bi-person-heart"></i> สวัสดีคุณมุก!</h4>
-        <p class="mb-1" id="dateText"></p>
+        <h3 id="greetingText"><i class="bi bi-person-heart"></i> สวัสดี ผู้ใช้งาน!</h3>
+        <p class="mb-2 fs-5" id="dateText"></p>
+        <hr class="border-light opacity-50">
         <div class="d-flex align-items-center mt-2">
-            <i id="weatherIcon" class="bi bi-cloud-sun fs-2 me-3"></i>
+            <i id="weatherIcon" class="bi bi-cloud-sun fs-1 me-3"></i>
             <div>
-                <strong class="fs-5" id="tempText">กำลังโหลดสภาพอากาศ...</strong>
-                <p class="mb-0 fs-6" id="weatherSuggestion"></p>
+                <strong class="fs-4" id="tempText">กำลังโหลดสภาพอากาศ...</strong>
+                <p class="mb-0 text-white-50"><i class="bi bi-geo-alt-fill"></i> จ.นนทบุรี</p>
+                <p class="mb-0 fs-6 mt-1" id="weatherSuggestion"></p>
             </div>
         </div>
     </div>
 
     <!-- เมนูนำทาง -->
-    <ul class="nav nav-pills nav-justified mb-4" id="pills-tab" role="tablist">
+    <ul class="nav nav-pills nav-justified mb-4 shadow-sm p-1 rounded-4 bg-white" id="pills-tab" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#pills-record" type="button"><i class="bi bi-clipboard2-pulse"></i> บันทึกข้อมูล</button>
+            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#pills-record" type="button"><i class="bi bi-clipboard2-pulse"></i> บันทึก</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-ai" type="button" onclick="renderAIAnalysis()"><i class="bi bi-robot"></i> วิเคราะห์</button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-settings" type="button"><i class="bi bi-gear"></i> ตั้งค่า</button>
@@ -43,74 +96,135 @@
 
     <!-- เนื้อหา -->
     <div class="tab-content" id="pills-tabContent">
-        <!-- หน้าบันทึกข้อมูล -->
+        
+        <!-- 1. หน้าบันทึกข้อมูล -->
         <div class="tab-pane fade show active" id="pills-record">
             <div class="card p-4">
                 <form id="healthForm">
                     <div class="row mb-3">
                         <div class="col-6">
-                            <label class="form-label"><i class="bi bi-calendar-event icon-cute"></i> วันที่</label>
+                            <label class="form-label">วันที่</label>
                             <input type="date" class="form-control" id="date" required>
                         </div>
                         <div class="col-6">
-                            <label class="form-label"><i class="bi bi-clock icon-cute"></i> เวลา</label>
+                            <label class="form-label">เวลา</label>
                             <input type="time" class="form-control" id="time" required>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-6">
-                            <label class="form-label">RR (ครั้ง/นาที)</label>
-                            <input type="number" class="form-control" id="rr">
+                            <label class="form-label">RR <small class="text-muted">(ครั้ง/นาที)</small></label>
+                            <input type="number" class="form-control" id="rr" placeholder="เช่น 20">
                         </div>
                         <div class="col-6">
-                            <label class="form-label">Pulse (ครั้ง/นาที)</label>
-                            <input type="number" class="form-control" id="p">
+                            <label class="form-label">Pulse <small class="text-muted">(ครั้ง/นาที)</small></label>
+                            <input type="number" class="form-control" id="p" placeholder="เช่น 80">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-6">
-                            <label class="form-label">SBP (mmHg)</label>
-                            <input type="number" class="form-control" id="sbp">
+                            <label class="form-label text-danger">SBP <small class="text-muted">(ตัวบน)</small></label>
+                            <input type="number" class="form-control" id="sbp" placeholder="เช่น 120" required>
                         </div>
                         <div class="col-6">
-                            <label class="form-label">DBP (mmHg)</label>
-                            <input type="number" class="form-control" id="dbp">
+                            <label class="form-label text-primary">DBP <small class="text-muted">(ตัวล่าง)</small></label>
+                            <input type="number" class="form-control" id="dbp" placeholder="เช่น 80" required>
                         </div>
                     </div>
                     <div class="mb-4">
-                        <label class="form-label"><i class="bi bi-journal-text icon-cute"></i> หมายเหตุ</label>
+                        <label class="form-label">หมายเหตุ</label>
                         <textarea class="form-control" id="note" rows="2" placeholder="ระบุอาการเพิ่มเติม (ถ้ามี)"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100 py-2" style="background-color: #667eea; border: none; font-size: 1.1rem;">
+                    <button type="submit" class="btn btn-custom w-100 shadow-sm">
                         <i class="bi bi-cloud-arrow-up"></i> บันทึกข้อมูล
                     </button>
                 </form>
             </div>
         </div>
 
-        <!-- หน้าตั้งค่า -->
-        <div class="tab-pane fade" id="pills-settings">
-            <div class="card p-4 text-center">
-                <i class="bi bi-tools fs-1 text-secondary mb-3"></i>
-                <h5>ตั้งค่าระบบ</h5>
-                <p class="text-muted">ส่วนนี้สามารถพัฒนาต่อเพื่อตั้งค่าพิกัดเพิ่มเติม หรือแก้ไขโปรไฟล์ผู้ใช้งานได้ในอนาคต</p>
+        <!-- 2. หน้าวิเคราะห์สุขภาพ AI -->
+        <div class="tab-pane fade" id="pills-ai">
+            <div class="card p-4">
+                <h4 class="text-center mb-4" style="color: var(--mint-dark);"><i class="bi bi-robot"></i> AI วิเคราะห์สุขภาพ</h4>
+                <div id="aiContent">
+                    <!-- เนื้อหาจะถูกสร้างโดย Javascript -->
+                    <p class="text-center text-muted">กรุณาบันทึกข้อมูลความดันโลหิตอย่างน้อย 1 ครั้งเพื่อให้ AI วิเคราะห์</p>
+                </div>
             </div>
         </div>
+
+        <!-- 3. หน้าตั้งค่า -->
+        <div class="tab-pane fade" id="pills-settings">
+            <div class="card p-4">
+                <h4 class="mb-4" style="color: var(--mint-dark);"><i class="bi bi-person-lines-fill"></i> ข้อมูลส่วนตัว</h4>
+                <form id="settingsForm">
+                    <div class="mb-3">
+                        <label class="form-label">ชื่อเรียก / ชื่อเล่น</label>
+                        <input type="text" class="form-control" id="settingName" placeholder="เช่น มุก" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">วัน/เดือน/ปีเกิด</label>
+                        <input type="date" class="form-control" id="settingDOB" required>
+                    </div>
+                    <button type="submit" class="btn btn-custom w-100">
+                        <i class="bi bi-save"></i> บันทึกการตั้งค่า
+                    </button>
+                </form>
+            </div>
+        </div>
+
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // 1. ตั้งค่าวันที่และเวลาปัจจุบัน
+    // URL ของ Google Apps Script (สามารถส่งเข้าชีตผ่าน LINE ได้ปกติ)
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz4ZS_9rWntw7fbl2oENr4osaAswx9JyC9G1PqIb652B392JNePHOEK2ceBTRSdk5g/exec';
+
+    // --- 1. จัดการข้อมูลผู้ใช้และการตั้งค่า ---
+    function loadSettings() {
+        const name = localStorage.getItem('userName') || '';
+        const dob = localStorage.getItem('userDOB') || '';
+        
+        if(name) {
+            document.getElementById('greetingText').innerHTML = `<i class="bi bi-person-heart"></i> สวัสดีคุณ${name}!`;
+            document.getElementById('settingName').value = name;
+        }
+        if(dob) {
+            document.getElementById('settingDOB').value = dob;
+            checkBirthday(name, dob);
+        }
+    }
+
+    function checkBirthday(name, dobStr) {
+        const today = new Date();
+        const dob = new Date(dobStr);
+        if(today.getDate() === dob.getDate() && today.getMonth() === dob.getMonth()) {
+            document.getElementById('bdName').textContent = name || 'ผู้ใช้งาน';
+            document.getElementById('birthdayBanner').classList.remove('d-none');
+        }
+    }
+
+    document.getElementById('settingsForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('settingName').value;
+        const dob = document.getElementById('settingDOB').value;
+        localStorage.setItem('userName', name);
+        localStorage.setItem('userDOB', dob);
+        alert('บันทึกการตั้งค่าเรียบร้อยแล้ว!');
+        loadSettings();
+    });
+
+    // --- 2. ตั้งค่าวันที่และโหลดสภาพอากาศ (พิกัด จ.นนทบุรี) ---
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     document.getElementById('dateText').textContent = 'วันนี้ ' + new Date().toLocaleDateString('th-TH', options);
     
     document.getElementById('date').valueAsDate = new Date();
     document.getElementById('time').value = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
 
-    // 2. ดึงข้อมูลสภาพอากาศ (อ้างอิงพิกัดนนทบุรี 13.86, 100.52)
     async function fetchWeather() {
         try {
+            // พิกัดนนทบุรี 13.86, 100.52
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=13.86&longitude=100.52&current_weather=true');
             const data = await res.json();
             const temp = data.current_weather.temperature;
@@ -118,27 +232,28 @@
             
             document.getElementById('tempText').textContent = `อุณหภูมิ ${temp}°C`;
             
-            let suggestion = "อากาศแจ่มใส เหมาะกับการทำกิจกรรมครับ";
+            let suggestion = "อากาศแจ่มใส เหมาะกับการออกกำลังกายเบาๆ ครับ";
             let icon = "bi-cloud-sun";
             
             if (code >= 51 && code <= 99) {
-                suggestion = "พยากรณ์ว่าฝนอาจจะตก อย่าลืมเตรียมร่มก่อนออกจากบ้านนะครับ ☔";
+                suggestion = "ฝนกำลังจะตก หรืออาจมีฝน อย่าลืมเตรียมร่มก่อนออกจากบ้านนะครับ ☔";
                 icon = "bi-cloud-rain";
             } else if (temp > 35) {
-                suggestion = "อากาศค่อนข้างร้อน ดื่มน้ำบ่อยๆ และระวังฮีทสโตรกด้วยนะครับ ☀️";
+                suggestion = "อากาศร้อนจัด ดื่มน้ำบ่อยๆ และหลีกเลี่ยงแดดจัดเพื่อป้องกันฮีทสโตรกนะครับ ☀️";
                 icon = "bi-sun";
+            } else if (code >= 45 && code <= 48) {
+                suggestion = "มีหมอกลงหรืออาจมีค่า PM สูง แนะนำสวมหน้ากากอนามัยเมื่อออกนอกบ้านครับ 😷";
+                icon = "bi-cloud-haze";
             }
 
-            document.getElementById('weatherIcon').className = `bi ${icon} fs-2 me-3`;
+            document.getElementById('weatherIcon').className = `bi ${icon} fs-1 me-3`;
             document.getElementById('weatherSuggestion').textContent = suggestion;
         } catch (e) {
-            document.getElementById('tempText').textContent = "ไม่สามารถโหลดสภาพอากาศได้";
-            document.getElementById('weatherSuggestion').textContent = "";
+            document.getElementById('tempText').textContent = "โหลดอากาศไม่สำเร็จ";
         }
     }
-    fetchWeather();
 
-    // 3. จัดการการส่งข้อมูลแบบแก้ปัญหา LINE In-App Browser (ใช้ no-cors)
+    // --- 3. บันทึกข้อมูล (ส่งเข้า Sheet และเก็บลง LocalStorage สำหรับ AI) ---
     document.getElementById('healthForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const submitBtn = e.target.querySelector('button');
@@ -157,32 +272,106 @@
             note: document.getElementById('note').value
         };
 
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz4ZS_9rWntw7fbl2oENr4osaAswx9JyC9G1PqIb652B392JNePHOEK2ceBTRSdk5g/exec';
+        // เซฟลง LocalStorage เพื่อให้ AI วิเคราะห์
+        let history = JSON.parse(localStorage.getItem('healthHistory')) || [];
+        history.push(payload);
+        localStorage.setItem('healthHistory', JSON.stringify(history));
 
         try {
-            // ใช้ mode: 'no-cors' เพื่อไม่ให้ LINE ขัดขวางการส่งข้อมูลข้ามโดเมน
             await fetch(WEB_APP_URL, {
                 method: 'POST',
                 mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'text/plain;charset=utf-8'
-                },
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify(payload)
             });
-            
-            // เนื่องจาก no-cors จะไม่อ่าน response กลับมา จึงถือว่าการส่งสำเร็จหากไม่ติด Error
             alert('บันทึกข้อมูลเรียบร้อยแล้ว!');
-            e.target.reset();
-            document.getElementById('date').valueAsDate = new Date();
-            document.getElementById('time').value = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
             
+            // รีเซ็ตฟอร์ม (ยกเว้นวันที่/เวลา)
+            document.getElementById('rr').value = '';
+            document.getElementById('p').value = '';
+            document.getElementById('sbp').value = '';
+            document.getElementById('dbp').value = '';
+            document.getElementById('note').value = '';
+            
+            renderAIAnalysis(); // อัปเดตหน้า AI ทันที
         } catch (error) {
-            alert('เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง');
+            alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
         } finally {
             submitBtn.innerHTML = originalBtnText;
             submitBtn.disabled = false;
         }
     });
+
+    // --- 4. ระบบ AI วิเคราะห์สุขภาพ ---
+    function renderAIAnalysis() {
+        const history = JSON.parse(localStorage.getItem('healthHistory')) || [];
+        const aiContent = document.getElementById('aiContent');
+        
+        if (history.length === 0) {
+            aiContent.innerHTML = '<p class="text-center text-muted">ยังไม่มีข้อมูลสำหรับวิเคราะห์ กรุณาบันทึกข้อมูลก่อนครับ</p>';
+            return;
+        }
+
+        // ดึงข้อมูลล่าสุด
+        const latest = history[history.length - 1];
+        const sbp = parseInt(latest.sbp);
+        const dbp = parseInt(latest.dbp);
+        
+        let status = "ปกติ";
+        let color = "text-success";
+        let icon = "bi-check-circle-fill";
+        let advice = "ความดันโลหิตของคุณอยู่ในเกณฑ์ดีเยี่ยม รักษาสุขภาพและออกกำลังกายสม่ำเสมอต่อไปนะครับ!";
+        
+        // กฎการแปลผลความดันโลหิต
+        if (sbp >= 140 || dbp >= 90) {
+            status = "สูง (ระดับอันตราย)";
+            color = "text-danger";
+            icon = "bi-exclamation-triangle-fill";
+            advice = `
+                <strong>คำแนะนำจาก AI:</strong><br>
+                📉 <b>การควบคุมอาหาร:</b> งดอาหารเค็มจัด อาหารแปรรูป และของหมักดอง (ลดโซเดียม)<br>
+                🏃‍♂️ <b>การออกกำลังกาย:</b> ควรงดการออกกำลังกายที่ใช้แรงมากในขณะนี้ แนะนำให้เดินเบาๆ หรือยืดเหยียดร่างกาย<br>
+                ⚖️ <b>น้ำหนัก:</b> ควรควบคุมน้ำหนักให้อยู่ในเกณฑ์มาตรฐาน (BMI 18.5 - 22.9)<br>
+                ⚠️ <b>ข้อควรระวัง:</b> ความดันโลหิตค่อนข้างสูงมาก ควรพักผ่อนให้เพียงพอ หากมีอาการปวดศีรษะ หน้ามืด ควรรีบพบแพทย์ครับ
+            `;
+        } else if (sbp >= 130 || dbp >= 80) {
+            status = "ค่อนข้างสูง (เฝ้าระวัง)";
+            color = "text-warning";
+            icon = "bi-exclamation-circle-fill";
+            advice = `
+                <strong>คำแนะนำจาก AI:</strong><br>
+                📉 <b>การควบคุมอาหาร:</b> ลดการเติมเครื่องปรุงรส และหลีกเลี่ยงน้ำซุป<br>
+                🏃‍♂️ <b>การออกกำลังกาย:</b> แนะนำให้ออกกำลังกายแบบแอโรบิค (เดินเร็ว, ว่ายน้ำ, ปั่นจักรยาน) วันละ 30 นาที 5 วัน/สัปดาห์<br>
+                ⚖️ <b>น้ำหนัก:</b> การลดน้ำหนักลงเพียง 2-3 กิโลกรัม สามารถช่วยลดระดับความดันโลหิตได้ชัดเจนครับ
+            `;
+        } else if (sbp < 90 || dbp < 60) {
+            status = "ต่ำกว่าเกณฑ์";
+            color = "text-info";
+            icon = "bi-info-circle-fill";
+            advice = "ความดันโลหิตค่อนข้างต่ำ หากมีอาการวิงเวียน หน้ามืด แนะนำให้จิบน้ำหวาน ดื่มน้ำให้เพียงพอ และเปลี่ยนอิริยาบถช้าๆ ครับ";
+        }
+
+        aiContent.innerHTML = `
+            <div class="text-center mb-4">
+                <p class="mb-1 text-muted">ข้อมูลล่าสุดเมื่อ: ${latest.date} เวลา ${latest.time}</p>
+                <div class="display-4 fw-bold ${color}">${sbp} / ${dbp}</div>
+                <h5 class="mt-2 ${color}"><i class="bi ${icon}"></i> สถานะ: ${status}</h5>
+            </div>
+            <div class="ai-box shadow-sm">
+                <p class="mb-0 lh-lg">${advice}</p>
+            </div>
+            <div class="mt-4 text-center">
+                <small class="text-muted">วิเคราะห์จากข้อมูลที่ถูกบันทึกไว้ในอุปกรณ์ล่าสุด (${history.length} รายการ)</small>
+            </div>
+        `;
+    }
+
+    // เริ่มการทำงานเมื่อโหลดหน้าจอ
+    window.onload = () => {
+        loadSettings();
+        fetchWeather();
+        renderAIAnalysis();
+    };
 </script>
 </body>
 </html>
